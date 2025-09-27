@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 
 import React, { useState } from "react";
@@ -79,7 +78,7 @@ export default function ResetPassword() {
       toast.success(data.message || "Password updated successfully");
       router.push("/login");
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(error.message || "Failed to update password");
     },
   });
@@ -92,7 +91,11 @@ export default function ResetPassword() {
       await resetPasswordMutation.mutateAsync(values.newPassword);
       console.log("Password updated successfully:", values.newPassword);
     } catch (err) {
-      setGeneralError("Failed to update password. Please try again.");
+      setGeneralError(
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message?: string }).message)
+          : "Failed to update password"
+      );
     } finally {
       setIsLoading(false);
     }

@@ -1,12 +1,14 @@
-import React from 'react'
-import VerifyEmail from './_components/VerifyEmail'
+"use client"; // ✅ Make this page a client component
 
-function page() {
+import React, { Suspense } from "react";
+import VerifyEmail from "./_components/VerifyEmail";
+
+const VerifyEmailPage = () => {
   return (
-    <div>
-        <VerifyEmail />
-    </div>
-  )
-}
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmail />
+    </Suspense>
+  );
+};
 
-export default page
+export default VerifyEmailPage;
