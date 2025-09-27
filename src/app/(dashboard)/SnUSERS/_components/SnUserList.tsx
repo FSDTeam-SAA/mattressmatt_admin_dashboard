@@ -1,110 +1,44 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { User } from "@/dataType/Type";
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  status: "Active" | "Inactive";
-  sleepScore: string;
-  listeningTime: string;
-  lastActivity: string;
-  location: string;
-  avatar: string;
+interface SnUserListProps {
+  users: User[];
 }
 
-const users: User[] = [
-  {
-    id: 1,
-    name: "Sarah Jonson",
-    email: "sarahjonson143@gmail.com",
-    status: "Active",
-    sleepScore: "8.5",
-    listeningTime: "12h 12m",
-    lastActivity: "2 hour ago",
-    location: "Ney York, USA",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
-  },
-  {
-    id: 2,
-    name: "Sarah Jonson",
-    email: "sarahjonson143@gmail.com",
-    status: "Active",
-    sleepScore: "8.5",
-    listeningTime: "12h 12m",
-    lastActivity: "2 hour ago",
-    location: "Ney York, USA",
-    avatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
-  },
-  {
-    id: 3,
-    name: "Sarah Jonson",
-    email: "sarahjonson143@gmail.com",
-    status: "Active",
-    sleepScore: "8.5",
-    listeningTime: "12h 12m",
-    lastActivity: "2 hour ago",
-    location: "Ney York, USA",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-  },
-  {
-    id: 4,
-    name: "Sarah Jonson",
-    email: "sarahjonson143@gmail.com",
-    status: "Inactive",
-    sleepScore: "8.5",
-    listeningTime: "12h 12m",
-    lastActivity: "2 hour ago",
-    location: "Ney York, USA",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-  },
-  {
-    id: 5,
-    name: "Sarah Jonson",
-    email: "sarahjonson143@gmail.com",
-    status: "Active",
-    sleepScore: "8.5",
-    listeningTime: "12h 12m",
-    lastActivity: "2 hour ago",
-    location: "Ney York, USA",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face",
-  },
-  {
-    id: 6,
-    name: "Sarah Jonson",
-    email: "sarahjonson143@gmail.com",
-    status: "Active",
-    sleepScore: "8.5",
-    listeningTime: "12h 12m",
-    lastActivity: "2 hour ago",
-    location: "Ney York, USA",
-    avatar:
-      "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=40&h=40&fit=crop&crop=face",
-  },
-];
-
-const SnUserList: React.FC = () => {
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [memberStatus, setMemberStatus] = useState<string>("Member Status");
+export const SnUserList: React.FC<SnUserListProps> = ({ users }) => {
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [memberStatus, setMemberStatus] = useState<string>("All Members");
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const usersPerPage = 10;
+
+  // Filtered users based on dropdown selection
+  const filteredUsers = users?.filter((user) => {
+    if (memberStatus === "All Members") return true;
+    if (memberStatus === "Active") return user.role !== "user"; // Example mapping
+    if (memberStatus === "Inactive") return user.role === "user"; // Example mapping
+    return true;
+  });
+
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers?.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers?.length / usersPerPage);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(users.map((user) => user.id));
+      setSelectedUsers(currentUsers.map((user) => user._id));
     } else {
       setSelectedUsers([]);
     }
   };
 
-  const handleSelectUser = (userId: number, checked: boolean) => {
+  const handleSelectUser = (userId: string, checked: boolean) => {
     if (checked) {
       setSelectedUsers([...selectedUsers, userId]);
     } else {
@@ -112,8 +46,13 @@ const SnUserList: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: "Active" | "Inactive") =>
-    status === "Active" ? "text-green-400" : "text-red-400";
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
 
   return (
     <div className="rounded-2xl border border-gray-700 overflow-hidden">
@@ -121,7 +60,7 @@ const SnUserList: React.FC = () => {
       <div className="flex items-center justify-between p-6 border-b border-gray-700">
         <div className="flex items-center gap-2">
           <h1 className="text-white text-xl font-semibold">Users</h1>
-          <span className="text-gray-400 text-sm">({users.length})</span>
+          <span className="text-gray-400 text-sm">({filteredUsers?.length})</span>
         </div>
 
         {/* Dropdown */}
@@ -133,7 +72,6 @@ const SnUserList: React.FC = () => {
             <span className="text-sm">{memberStatus}</span>
             <ChevronDown className="w-4 h-4" />
           </button>
-
           {isDropdownOpen && (
             <div className="absolute right-0 top-full mt-2 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10 min-w-[150px]">
               <div className="py-1">
@@ -144,6 +82,7 @@ const SnUserList: React.FC = () => {
                     onClick={() => {
                       setMemberStatus(status);
                       setIsDropdownOpen(false);
+                      setCurrentPage(1);
                     }}
                   >
                     {status}
@@ -161,84 +100,53 @@ const SnUserList: React.FC = () => {
           <thead>
             <tr className="border-b border-gray-700">
               <th className="text-left p-4 font-medium text-gray-400 text-sm">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
-                    checked={selectedUsers.length === users.length}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                  />
-                  User
-                </div>
+                <input
+                  type="checkbox"
+                  className="rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
+                  checked={
+                    selectedUsers?.length === currentUsers?.length &&
+                    currentUsers?.length > 0
+                  }
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                />
               </th>
-              <th className="text-left p-4 font-medium text-gray-400 text-sm">
-                Status
-              </th>
-              <th className="text-left p-4 font-medium text-gray-400 text-sm">
-                Sleep Score
-              </th>
-              <th className="text-left p-4 font-medium text-gray-400 text-sm">
-                Listening Time
-              </th>
-              <th className="text-left p-4 font-medium text-gray-400 text-sm">
-                Last Activity
-              </th>
-              <th className="text-left p-4 font-medium text-gray-400 text-sm">
-                Location
-              </th>
+              <th className="text-left p-4 font-medium text-gray-400 text-sm">Avatar</th>
+              <th className="text-left p-4 font-medium text-gray-400 text-sm">Name</th>
+              <th className="text-left p-4 font-medium text-gray-400 text-sm">Email</th>
+              <th className="text-left p-4 font-medium text-gray-400 text-sm">Role</th>
+              <th className="text-left p-4 font-medium text-gray-400 text-sm">Location</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {currentUsers?.map((user) => (
               <tr
-                key={user.id}
+                key={user._id}
                 className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
               >
                 <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={(e) =>
-                        handleSelectUser(user.id, e.target.checked)
-                      }
-                    />
-                    <Image
-                      width={40}
-                      height={40}
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <div className="text-white font-medium text-sm">
-                        {user.name}
-                      </div>
-                      <div className="text-gray-400 text-xs">{user.email}</div>
-                    </div>
-                  </div>
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
+                    checked={selectedUsers.includes(user._id)}
+                    onChange={(e) => handleSelectUser(user._id, e.target.checked)}
+                  />
                 </td>
                 <td className="p-4">
-                  <span
-                    className={`text-sm font-medium ${getStatusColor(
-                      user.status
-                    )}`}
-                  >
-                    {user.status}
-                  </span>
+                  <Image
+                    width={40}
+                    height={40}
+                    src={user.avatar?.url || "/default-avatar.png"}
+                    alt={user.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
                 </td>
-                <td className="p-4">
-                  <span className="text-gray-300 text-sm">{user.sleepScore}</span>
-                </td>
-                <td className="p-4">
-                  <span className="text-gray-300 text-sm">{user.listeningTime}</span>
-                </td>
-                <td className="p-4">
-                  <span className="text-gray-300 text-sm">{user.lastActivity}</span>
-                </td>
-                <td className="p-4">
-                  <span className="text-gray-300 text-sm">{user.location}</span>
+                <td className="p-4 text-white text-sm font-medium">{user.name}</td>
+                <td className="p-4 text-gray-400 text-sm">{user.email}</td>
+                <td className="p-4 text-gray-300 text-sm">{user.role}</td>
+                <td className="p-4 text-gray-300 text-sm">
+                  {typeof user.address === "string"
+                    ? user.address
+                    : `${user.address?.city || ""}, ${user.address?.state || ""}`}
                 </td>
               </tr>
             ))}
@@ -248,13 +156,23 @@ const SnUserList: React.FC = () => {
 
       {/* Pagination */}
       <div className="flex items-center justify-between p-6 border-t border-gray-700">
-        <div className="text-gray-400 text-sm">Page 1 of 10</div>
+        <div className="text-gray-400 text-sm">
+          Page {currentPage} of {totalPages}
+        </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors">
+          <button
+            className="flex items-center gap-1 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+          >
             <ChevronLeft className="w-4 h-4" />
             Previous
           </button>
-          <button className="flex items-center gap-1 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors">
+          <button
+            className="flex items-center gap-1 px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors disabled:opacity-50"
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+          >
             Next
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -263,5 +181,3 @@ const SnUserList: React.FC = () => {
     </div>
   );
 };
-
-export default SnUserList;

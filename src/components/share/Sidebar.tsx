@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, LogOut, Grip, ShoppingBasket } from "lucide-react";
+import { LayoutDashboard, LogOut, Grip } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import LogoutModal from "./LogoutModal";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -14,16 +16,22 @@ const navigation = [
     icon: LayoutDashboard,
   },
   {
-    name: "Approved Products",
-    href: "/approved-product",
+    name: "Library",
+    href: "/Library",
     icon: LayoutDashboard,
   },
-  { name: "Main Category", href: "/category", icon: Grip },
-  { name: "Sub Category", href: "/sub-category", icon: ShoppingBasket },
+  { name: "Settings", href: "/settings", icon: Grip },
+  // { name: "Sub Category", href: "/sub-category", icon: ShoppingBasket },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    console.log("User logged out");
+    setIsLogoutModalOpen(false);
+  };
 
   return (
     <div className="w-[312px] h-screen flex flex-col border-r border-gray-700 sticky top-0 backdrop-blur-md shadow-lg">
@@ -76,14 +84,23 @@ export function Sidebar() {
           );
         })}
       </nav>
-
       {/* Logout */}
       <div className="p-3">
-        <div className="flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-600/50 hover:text-white cursor-pointer">
+        <div
+          onClick={() => setIsLogoutModalOpen(true)}
+          className="flex items-center justify-start gap-2 px-3 py-2 text-sm font-medium rounded-lg text-slate-300 hover:bg-slate-600/50 hover:text-white cursor-pointer"
+        >
           <LogOut className="h-5 w-5" />
           <span className="text-base font-normal leading-[120%]">Log Out</span>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }

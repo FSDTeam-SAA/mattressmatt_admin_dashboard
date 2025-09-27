@@ -1,10 +1,10 @@
 import React from 'react'
-import TotalLibraryPage from './_components/TotalLibraryPage'
+import VerifyEmail from './_components/VerifyEmail'
 
 function page() {
   return (
     <div>
-        <TotalLibraryPage />
+        <VerifyEmail />
     </div>
   )
 }
