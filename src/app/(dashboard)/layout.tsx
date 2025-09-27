@@ -5,9 +5,9 @@ import React from "react";
 function layout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center flex"
+      className="min-h-screen w-full bg-cover bg-center flex bg-[black]"
       style={{
-        backgroundImage: "url('/images/layoutbgiamge.png')", // Dummy image
+        backgroundImage: "url('/images/layoutbgiamge.png')",
       }}
     >
       {/* Sidebar full height */}
