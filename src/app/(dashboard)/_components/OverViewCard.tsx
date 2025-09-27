@@ -6,28 +6,28 @@ function OverViewCard() {
     {
       icon: Users,
       title: "Total Users",
-      value: "24,645",
+      value: "05",
       change: "+1,234 this month",
       trend: "up"
     },
     {
       icon: Music,
       title: "Music Tracks",
-      value: "4,645",
+      value: "02",
       change: "+32 this week",
       trend: "up"
     },
     {
       icon: Play,
       title: "Total Plays",
-      value: "24,645",
+      value: "01",
       change: "+1,234 this month",
       trend: "up"
     },
     {
       icon: Star,
       title: "Avg. rating",
-      value: "24,645",
+      value: "04",
       change: "1,234 Reviews",
       trend: "up"
     }
