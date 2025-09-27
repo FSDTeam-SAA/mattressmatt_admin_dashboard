@@ -1,10 +1,10 @@
 import React from 'react'
-import TotalLibraryPage from './_components/TotalLibraryPage'
+import ResetPassword from './_components/ResetPassword'
 
 function page() {
   return (
     <div>
-        <TotalLibraryPage />
+        <ResetPassword />
     </div>
   )
 }

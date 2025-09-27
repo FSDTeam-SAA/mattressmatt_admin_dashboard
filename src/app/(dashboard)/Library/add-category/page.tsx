@@ -1,10 +1,10 @@
 import React from 'react'
-import TotalLibraryPage from './_components/TotalLibraryPage'
+import AddCategoryForm from './_components/AddCategoryForm'
 
 function page() {
   return (
     <div>
-        <TotalLibraryPage />
+        <AddCategoryForm />
     </div>
   )
 }

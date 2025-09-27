@@ -1,10 +1,10 @@
 import React from 'react'
-import TotalLibraryPage from './_components/TotalLibraryPage'
+import SettingsPage from './_components/SettingsPage'
 
 function page() {
   return (
     <div>
-        <TotalLibraryPage />
+        <SettingsPage />
     </div>
   )
 }

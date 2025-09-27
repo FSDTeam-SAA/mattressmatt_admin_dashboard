@@ -1,10 +1,10 @@
 import React from 'react'
-import TotalLibraryPage from './_components/TotalLibraryPage'
+import UploadTrackPage from './_components/UploadTrackPage'
 
 function page() {
   return (
     <div>
-        <TotalLibraryPage />
+        <UploadTrackPage />
     </div>
   )
 }
