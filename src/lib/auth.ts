@@ -11,7 +11,7 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: "next-auth.session-token-admin", // 🔹 আলাদা কুকি নাম
+      name: "next-auth.session-token-admin",
       options: {
         httpOnly: true,
         sameSite: "lax",
@@ -25,7 +25,11 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text", placeholder: "email" },
-        password: { label: "Password", type: "password", placeholder: "password" },
+        password: {
+          label: "Password",
+          type: "password",
+          placeholder: "password",
+        },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -52,16 +56,20 @@ export const authOptions: NextAuthOptions = {
             throw new Error(response?.message || "Login failed");
           }
 
-          const { id, name, role, email, phonNumber } = response.data;
-          const accessToken = response.accessToken;
+          // ✅ Proper destructuring
+          const { accessToken, refreshToken, role, _id, user } = response.data;
+          if (role !== "admin") {
+            throw new Error("Only admin users can access this page");
+          }
 
           return {
-            id,
-            name,
-            email,
+            id: _id,
+            name: user?.name,
+            email: user?.email,
             role,
-            phoneNumber: phonNumber,
+            phoneNumber: user?.phoneNumber,
             accessToken,
+            refreshToken,
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -84,20 +92,26 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.phoneNumber = user.phoneNumber;
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
       }
       return token;
     },
 
     async session({ session, token }: { session: any; token: JWT }) {
-  session.user = {
-    id: token.id,
-    name: token.name,
-    email: token.email,
-    role: token.role,
-    phoneNumber: token.phoneNumber,
-    accessToken: token.accessToken, // <-- here you include accessToken
-  };
-  return session;
-}
+      session.user = {
+        id: token.id,
+        name: token.name,
+        email: token.email,
+        role: token.role,
+        phoneNumber: token.phoneNumber,
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
+      };
+
+      // Debugging: check what session returns
+      console.log("✅ Session User:", session.user);
+
+      return session;
+    },
   },
 };
