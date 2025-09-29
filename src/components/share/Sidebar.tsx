@@ -28,10 +28,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
-  // const handleLogout = () => {
-  //   console.log("User logged out");
-  //   setIsLogoutModalOpen(false);
-  // };
+  
 
   return (
     <div className="w-[312px] h-screen flex flex-col border-r border-gray-700 sticky top-0 backdrop-blur-md shadow-lg">
