@@ -1,6 +1,8 @@
 "use client";
 
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis, Tooltip } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Card,
@@ -12,37 +14,84 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-export const description = "A line chart with dots";
+interface OverviewCounts {
+  totalUsers: number;
+  totalTracks: number;
+  totalPlays: number;
+}
 
-const chartData = [
-  { day: "Mon", users: 250 },
-  { day: "Tue", users: 300 },
-  { day: "Wed", users: 180 },
-  { day: "Thu", users: 420 },
-  { day: "Fri", users: 320 },
-  { day: "Sat", users: 450 },
-  { day: "Sun", users: 360 },
-];
+interface OverviewData {
+  counts: OverviewCounts;
+  graph: { day: string; count: number }[];
+}
+
+interface MusicOverviewResponse {
+  success: boolean;
+  message: string;
+  data: OverviewData;
+}
+
+export const description = "A line chart with dots";
 
 const chartConfig = {
   users: {
-    label: "Users",
-    color: "#f97316", // Orange color matching the image
+    label: "Plays",
+    color: "#f97316", // Orange color
   },
 } satisfies ChartConfig;
 
 export function PerformanceAnalyticsChart() {
+  const { data, isLoading, isError } = useQuery<MusicOverviewResponse>({
+    queryKey: ["musicOverview"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/music/overview`
+      );
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to fetch music data");
+      }
+      return res.json();
+    },
+  });
+
+  // Skeleton loader while fetching
+  if (isLoading)
+    return (
+      <Card className="rounded-[20px] border-gray-700 backdrop-blur-sm shadow-2xl h-[400px] flex flex-col">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-white text-xl font-semibold">
+            <Skeleton className="h-6 w-48 bg-gray-600/70 animate-pulse" />
+          </CardTitle>
+          <CardDescription className="text-gray-400 text-sm">
+            <Skeleton className="h-4 w-32 bg-gray-600/70 animate-pulse mt-1" />
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 pb-6">
+          <Skeleton className="h-[280px] w-full rounded-[12px] bg-gray-600/70 animate-pulse" />
+        </CardContent>
+      </Card>
+    );
+
+  if (isError || !data?.data)
+    return <div className="text-red-500">Failed to load dashboard data.</div>;
+
+  // Use API graph data
+  const chartData = data.data.graph.map((item) => ({
+    day: item.day,
+    users: item.count,
+  }));
+
   return (
     <Card className="rounded-[20px] border-gray-700 backdrop-blur-sm shadow-2xl h-[400px] flex flex-col">
       <CardHeader className="pb-4">
-        <CardTitle className="text-white text-xl font-semibold">Performance Analytics</CardTitle>
-        <CardDescription className="text-gray-400 text-sm">
-          Weekly  plays
-        </CardDescription>
+        <CardTitle className="text-white text-xl font-semibold">
+          Performance Analytics
+        </CardTitle>
+        <CardDescription className="text-gray-400 text-sm">Weekly plays</CardDescription>
       </CardHeader>
 
       <CardContent className="flex-1 pb-6">
@@ -57,57 +106,48 @@ export function PerformanceAnalyticsChart() {
             }}
             className="h-full w-full"
           >
-            <CartesianGrid 
-              vertical={false} 
-              stroke="rgba(255,255,255,0.1)" 
-              strokeDasharray="0" 
-              className=""
+            <CartesianGrid
+              vertical={false}
+              stroke="rgba(255,255,255,0.1)"
+              strokeDasharray="0"
             />
 
-            {/* X Axis */}
             <XAxis
               dataKey="day"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tick={{ fill: '#9ca3af', fontSize: 12 }}
+              tick={{ fill: "#9ca3af", fontSize: 12 }}
             />
 
-            {/* Y Axis */}
             <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               allowDecimals={false}
-              domain={[0, 600]}
-              ticks={[0, 150, 300, 450, 600]}
+              domain={[0, Math.max(...chartData.map((d) => d.users)) + 1]}
               width={40}
-              tick={{ fill: '#9ca3af', fontSize: 12 }}
-              className=""
+              tick={{ fill: "#9ca3af", fontSize: 12 }}
             />
 
-            <ChartTooltip 
-              cursor={false} 
-              content={<ChartTooltipContent hideLabel />} 
-            />
+            <Tooltip content={<ChartTooltipContent hideLabel />} cursor={false} />
 
-            {/* Line Chart */}
             <Line
               dataKey="users"
               type="monotone"
               stroke={chartConfig.users.color}
               strokeWidth={3}
-              dot={{ 
-                fill: chartConfig.users.color, 
+              dot={{
+                fill: chartConfig.users.color,
                 stroke: chartConfig.users.color,
                 strokeWidth: 2,
-                r: 4 
+                r: 4,
               }}
-              activeDot={{ 
-                r: 6, 
+              activeDot={{
+                r: 6,
                 fill: chartConfig.users.color,
-                stroke: '#fff',
-                strokeWidth: 2 
+                stroke: "#fff",
+                strokeWidth: 2,
               }}
             />
           </LineChart>

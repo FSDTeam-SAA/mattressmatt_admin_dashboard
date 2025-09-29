@@ -52,7 +52,9 @@ export default function LoginForm() {
         redirect: false,
         email: data.email,
         password: data.password,
-      });
+      }); 
+
+      console.log("Login response:", res);
 
       if (res?.error) {
         toast.error(res.error || "Invalid credentials");

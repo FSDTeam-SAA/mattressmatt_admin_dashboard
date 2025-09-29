@@ -5,13 +5,19 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        port: '', // leave empty for default
+        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
         port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8001', // add your backend port here
         pathname: '/**',
       },
     ],
